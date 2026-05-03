@@ -1,0 +1,415 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- En-tête avec bienvenue -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Tableau de bord RH
+                </h1>
+                <p class="text-blue-100">
+                    <i class="far fa-calendar-alt mr-2"></i>{{ current_date|date:"l d F Y" }}
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-blue-100">
+                    <i class="fas fa-user-circle mr-1"></i>Connecté en tant que
+                </p>
+                <p class="font-semibold">{{ user.get_full_name }}</p>
+                <p class="text-sm text-blue-100">
+                    <i class="fas fa-briefcase mr-1"></i>{{ user.get_role_display }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages flash -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% else %}bg-red-100 text-red-700 border-l-4 border-red-500{% endif %}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} mr-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- ==================== ADMIN RH DASHBOARD ==================== -->
+    {% if role == 'ADMIN' %}
+    
+    <!-- Statistiques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">
+                        <i class="fas fa-users mr-1"></i>Total Employés
+                    </p>
+                    <p class="text-3xl font-bold text-gray-800">{{ total_employees }}</p>
+                    <p class="text-green-600 text-sm mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i>↑ 12% ce mois
+                    </p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">
+                        <i class="fas fa-user-check mr-1"></i>Employés Actifs
+                    </p>
+                    <p class="text-3xl font-bold text-gray-800">{{ active_employees }}</p>
+                    <p class="text-green-600 text-sm mt-2">
+                        <i class="fas fa-chart-line mr-1"></i>{{ active_percentage }}% du total
+                    </p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">
+                        <i class="fas fa-chalkboard-user mr-1"></i>Managers
+                    </p>
+                    <p class="text-3xl font-bold text-gray-800">{{ total_managers }}</p>
+                    <p class="text-gray-600 text-sm mt-2">
+                        <i class="fas fa-chart-pie mr-1"></i>{{ managers_percentage }}% de l'effectif
+                    </p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-3">
+                    <i class="fas fa-user-graduate text-yellow-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">
+                        <i class="fas fa-user-slash mr-1"></i>Employés Inactifs
+                    </p>
+                    <p class="text-3xl font-bold text-gray-800">{{ inactive_employees }}</p>
+                    <p class="text-red-600 text-sm mt-2">
+                        <i class="fas fa-chart-line mr-1"></i>{{ inactive_percentage }}% du total
+                    </p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i class="fas fa-user-times text-purple-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Derniers employés ajoutés -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">
+                <i class="fas fa-clock text-blue-500 mr-2"></i>Derniers employés ajoutés
+            </h3>
+            <a href="{% url 'accounts:employee_list' %}" class="text-blue-600 hover:text-blue-800 text-sm">
+                <i class="fas fa-eye mr-1"></i>Voir tous →
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-id-card mr-1"></i>ID
+                        </th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-user mr-1"></i>Nom complet
+                        </th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-envelope mr-1"></i>Email
+                        </th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-briefcase mr-1"></i>Rôle
+                        </th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-calendar-plus mr-1"></i>Date d'ajout
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in recent_employees %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 text-sm">{{ emp.employee_id|default:"-" }}</td>
+                        <td class="px-4 py-2 text-sm">{{ emp.get_full_name }}</td>
+                        <td class="px-4 py-2 text-sm">{{ emp.email }}</td>
+                        <td class="px-4 py-2 text-sm">{{ emp.get_role_display }}</td>
+                        <td class="px-4 py-2 text-sm">{{ emp.created_at|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-gray-500">
+                            <i class="fas fa-inbox mr-2"></i>Aucun employé
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <!-- Actions rapides -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">  <!-- Changed to 4 columns -->
+
+    <!-- Existing buttons -->
+    <a href="{% url 'accounts:employee_list' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg text-center hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
+        <i class="fas fa-users text-2xl mb-2 block"></i>
+        <div class="font-semibold">Gestion des employés</div>
+        <div class="text-sm text-blue-100">Gérer, filtrer, exporter</div>
+    </a>
+
+    <a href="{% url 'accounts:employee_create' %}" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg text-center hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105">
+        <i class="fas fa-user-plus text-2xl mb-2 block"></i>
+        <div class="font-semibold">Ajouter un employé</div>
+        <div class="text-sm text-green-100">Nouveau recrutement</div>
+    </a>
+
+    <!-- ✅ NEW PAIEMENT BUTTON -->
+    <a href="{% url 'accounts:payroll_dashboard' %}" class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-lg text-center hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105">
+        <i class="fas fa-money-bill-wave text-2xl mb-2 block"></i>
+        <div class="font-semibold">Paiements</div>
+        <div class="text-sm text-orange-100">Gestion de la paie</div>
+    </a>
+
+    <a href="#" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg text-center hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105">
+        <i class="fas fa-chart-line text-2xl mb-2 block"></i>
+        <div class="font-semibold">Rapports</div>
+        <div class="text-sm text-purple-100">Statistiques avancées</div>
+    </a>
+
+    <a href="{% url 'evaluations:all_evaluations' %}" class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4 rounded-lg text-center hover:from-indigo-600 hover:to-indigo-700 transition-all transform hover:scale-105">
+        <i class="fas fa-clipboard-list text-2xl mb-2 block"></i>
+        <div class="font-semibold">Évaluations</div>
+        <div class="text-sm text-indigo-100">Toutes les évaluations</div>
+    </a>
+</div>
+
+    <!-- ==================== MANAGER DASHBOARD ==================== -->
+    {% elif role == 'MANAGER' %}
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <i class="fas fa-users text-4xl text-yellow-500 mb-3 block"></i>
+            <p class="text-gray-500 text-sm">Mon équipe</p>
+            <p class="text-3xl font-bold text-gray-800">{{ team_size }}</p>
+            <p class="text-sm text-gray-600">membres</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <i class="fas fa-calendar-check text-4xl text-blue-500 mb-3 block"></i>
+            <p class="text-gray-500 text-sm">Congés en attente</p>
+            <p class="text-3xl font-bold text-gray-800">{{ pending_leaves|default:"0" }}</p>
+            <p class="text-sm text-gray-600">à valider</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <i class="fas fa-star text-4xl text-green-500 mb-3 block"></i>
+            <p class="text-gray-500 text-sm">Évaluations</p>
+            <p class="text-3xl font-bold text-gray-800">{{ pending_evaluations|default:"0" }}</p>
+            <p class="text-sm text-gray-600">en attente</p>
+        </div>
+    </div>
+
+    <!-- Mon équipe -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold mb-4">
+            <i class="fas fa-user-friends text-blue-500 mr-2"></i>Les membres de mon équipe
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for member in team_members %}
+            <div class="flex items-center space-x-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {{ member.first_name|first }}{{ member.last_name|first }}
+                </div>
+                <div class="flex-1">
+                    <p class="font-semibold">{{ member.get_full_name }}</p>
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-briefcase mr-1"></i>{{ member.position|default:"Employé" }}
+                    </p>
+                </div>
+                <div>
+                    <span class="px-2 py-1 text-xs rounded-full {% if member.status == 'ACTIVE' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <i class="fas {% if member.status == 'ACTIVE' %}fa-circle{% else %}fa-circle-notch{% endif %} mr-1"></i>
+                        {{ member.get_status_display_fr }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-center py-4">
+                <i class="fas fa-info-circle mr-2"></i>Aucun membre dans votre équipe
+            </p>
+            {% endfor %}
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'accounts:my_team' %}" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-right mr-1"></i>Voir tous les membres
+            </a>
+        </div>
+    </div>
+
+   <!-- Actions manager -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{% url 'accounts:my_team' %}" class="bg-indigo-500 text-white p-4 rounded-lg text-center hover:bg-indigo-600 transition-all">
+            <i class="fas fa-users mr-2"></i>Gérer mon équipe
+        </a>
+    
+        <a href="{% url 'pending_requests' %}" class="bg-green-500 text-white p-4 rounded-lg text-center hover:bg-green-600 transition-all">
+            <i class="fas fa-calendar-alt mr-2"></i>Valider les congés
+        </a>
+
+        <!-- New Evaluations Button -->
+        <a href="{% url 'evaluations:campaign_list' %}" 
+             class="bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition-all">
+            <i class="fas fa-chart-bar mr-2"></i>
+            Évaluations & Objectifs
+        </a>
+    </div>
+
+    <!-- ==================== EMPLOYEE DASHBOARD ==================== -->
+    {% else %}
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Mes informations -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-id-card text-blue-500 mr-2"></i>Mes informations
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-user mr-2"></i>Nom complet:
+                    </span>
+                    <span class="font-medium">{{ user.get_full_name }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-envelope mr-2"></i>Email:
+                    </span>
+                    <span class="font-medium">{{ user.email }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-phone mr-2"></i>Téléphone:
+                    </span>
+                    <span class="font-medium">{{ user.phone|default:"Non renseigné" }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-briefcase mr-2"></i>Poste:
+                    </span>
+                    <span class="font-medium">{{ user.position|default:"Non renseigné" }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-building mr-2"></i>Département:
+                    </span>
+                    <span class="font-medium">{{ user.department|default:"Non renseigné" }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">
+                        <i class="fas fa-user-tie mr-2"></i>Manager:
+                    </span>
+                    <span class="font-medium">{{ user.manager.get_full_name|default:"Non assigné" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">
+                        <i class="fas fa-calendar-alt mr-2"></i>Date d'embauche:
+                    </span>
+                    <span class="font-medium">{{ user.hire_date|default:"Non renseignée" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mon statut -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-chart-line text-green-500 mr-2"></i>Mon statut
+            </h3>
+            <div class="text-center py-6">
+                <div class="inline-block p-4 rounded-full {% if user.status == 'ACTIVE' %}bg-green-100{% else %}bg-gray-100{% endif %} mb-4">
+                    <i class="fas {% if user.status == 'ACTIVE' %}fa-check-circle text-green-500{% else %}fa-pause-circle text-gray-500{% endif %} text-5xl"></i>
+                </div>
+                <p class="text-xl font-semibold">{{ user.get_status_display_fr }}</p>
+                <p class="text-gray-600 mt-2">
+                    {% if user.status == 'ACTIVE' %}
+                    <i class="fas fa-thumbs-up mr-1"></i>Vous êtes actif dans l'entreprise
+                    {% else %}
+                    <i class="fas fa-info-circle mr-1"></i>Compte inactif
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solde de congés -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold mb-4">
+            <i class="fas fa-umbrella-beach text-blue-500 mr-2"></i>Mon solde de congés
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-blue-50 rounded-lg">
+                <p class="text-gray-600 text-sm">Congés acquis</p>
+                <p class="text-2xl font-bold text-blue-600">{{ leave_balance.acquired|default:"25" }}</p>
+                <p class="text-xs text-gray-500">jours</p>
+            </div>
+            <div class="p-4 bg-yellow-50 rounded-lg">
+                <p class="text-gray-600 text-sm">Congés pris</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ leave_balance.taken|default:"5" }}</p>
+                <p class="text-xs text-gray-500">jours</p>
+            </div>
+            <div class="p-4 bg-green-50 rounded-lg">
+                <p class="text-gray-600 text-sm">Solde restant</p>
+                <p class="text-2xl font-bold text-green-600">{{ leave_balance.remaining|default:"20" }}</p>
+                <p class="text-xs text-gray-500">jours</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions employé -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <a href="{% url 'accounts:my_profile' %}" class="bg-indigo-500 text-white p-4 rounded-lg text-center hover:bg-indigo-600 transition-all">
+            <i class="fas fa-user-circle mr-2"></i>Voir mon profil complet
+        </a>
+        <!-- LIEN MODIFIÉ : Demander un congé -->
+        <a href="{% url 'request_leave' %}" class="bg-green-500 text-white p-4 rounded-lg text-center hover:bg-green-600 transition-all">
+            <i class="fas fa-calendar-plus mr-2"></i>Demander un congé
+        </a>
+        <!-- NOUVEAU LIEN : Mes demandes de congé -->
+        <a href="{% url 'my_requests' %}" class="bg-blue-500 text-white p-4 rounded-lg text-center hover:bg-blue-600 transition-all">
+            <i class="fas fa-list mr-2"></i>Mes demandes de congé
+        </a>
+        
+        <a href="{% url 'evaluations:self_evaluate' %}" class="bg-purple-500 text-white p-4 rounded-lg text-center hover:bg-purple-600 transition-all">
+            <i class="fas fa-star mr-2"></i>Mon auto-évaluation
+        </a>
+
+        <a href="{% url 'accounts:my_payslips' %}" class="bg-orange-500 text-white p-4 rounded-lg text-center hover:bg-orange-600 transition-all">
+            <i class="fas fa-file-invoice-dollar mr-2"></i>Mes fiches de paie
+        </a>
+        
+    </div>
+    {% endif %}
+
+    <!-- Déconnexion -->
+    <div class="mt-6 text-center">
+        <a href="{% url 'accounts:logout' %}" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors inline-flex items-center">
+            <i class="fas fa-sign-out-alt mr-2"></i>
+            Se déconnecter
+        </a>
+    </div>
+</div>
+{% endblock %}

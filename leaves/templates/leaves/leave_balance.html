@@ -1,0 +1,74 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Mon solde de congés{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">
+                <i class="fas fa-chart-line mr-2"></i> Mon solde de congés
+            </h2>
+            <p class="text-blue-100 text-sm mt-1">Année 2026</p>
+        </div>
+        
+        <div class="p-6">
+            {% if balance %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-blue-50 rounded-xl p-6 text-center border border-blue-200">
+                        <div class="text-blue-500 text-4xl mb-2">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">Congés acquis</p>
+                        <p class="text-3xl font-bold text-blue-600">{{ balance.total_days }}</p>
+                        <p class="text-xs text-gray-500">jours</p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 rounded-xl p-6 text-center border border-yellow-200">
+                        <div class="text-yellow-500 text-4xl mb-2">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">Congés pris</p>
+                        <p class="text-3xl font-bold text-yellow-600">{{ balance.taken_days }}</p>
+                        <p class="text-xs text-gray-500">jours</p>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-xl p-6 text-center border border-green-200">
+                        <div class="text-green-500 text-4xl mb-2">
+                            <i class="fas fa-umbrella-beach"></i>
+                        </div>
+                        <p class="text-gray-600 text-sm">Solde restant</p>
+                        <p class="text-3xl font-bold text-green-600">{{ balance.remaining_days }}</p>
+                        <p class="text-xs text-gray-500">jours</p>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span><i class="fas fa-chart-simple mr-1"></i> Progression des congés pris</span>
+                        <span>{{ balance.taken_days }} / {{ balance.total_days }} jours</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-500 h-3 rounded-full" style="width: {% widthratio balance.taken_days balance.total_days 100 %}%"></div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-chart-simple text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg">Aucun solde configuré</p>
+                    <p class="text-gray-400 text-sm mt-1">Veuillez contacter votre service RH</p>
+                </div>
+            {% endif %}
+            
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                <a href="{% url 'request_leave' %}" class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg text-center hover:bg-green-600 transition">
+                    <i class="fas fa-calendar-plus mr-2"></i> Demander un congé
+                </a>
+                <a href="{% url 'my_requests' %}" class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg text-center hover:bg-blue-600 transition">
+                    <i class="fas fa-list mr-2"></i> Voir mes demandes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

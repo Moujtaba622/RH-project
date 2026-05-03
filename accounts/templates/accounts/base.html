@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Platform - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Barre de navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-xl font-bold text-blue-600">
+                    <i class="fas fa-building"></i> RH Platform
+                </div>
+                <div class="flex space-x-6">
+                    <a href="/" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home"></i> Accueil
+                    </a>
+                    <a href="/accounts/dashboard/" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                    </a>
+                    <a href="{% url 'request_leave' %}" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-calendar-plus"></i> Demander un congé
+                    </a>
+                    <a href="{% url 'my_requests' %}" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-list"></i> Mes demandes
+                    </a>
+                    <a href="{% url 'leave_balance' %}" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-chart-line"></i> Mon solde
+                    </a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'pending_requests' %}" class="text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-check-double"></i> Approbations
+                        </a>
+                    {% endif %}
+                    <a href="/accounts/logout/" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded {% if message.tags == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% else %}bg-red-100 text-red-700 border-l-4 border-red-500{% endif %}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

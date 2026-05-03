@@ -1,0 +1,83 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Approbations - Demandes en attente{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4">
+            <h2 class="text-xl font-bold text-white">
+                <i class="fas fa-check-double mr-2"></i> Demandes en attente d'approbation
+            </h2>
+            <p class="text-orange-100 text-sm mt-1">Validez ou refusez les demandes de congé de votre équipe</p>
+        </div>
+        
+        <div class="p-6">
+            {% if pending %}
+                <div class="grid grid-cols-1 gap-4">
+                    {% for req in pending %}
+                    <div class="border rounded-lg p-5 hover:shadow-lg transition bg-white">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                                        {{ req.employee.first_name|first }}{{ req.employee.last_name|first }}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-lg">{{ req.employee.get_full_name }}</h3>
+                                        <p class="text-sm text-gray-500">{{ req.employee.email }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500 block">📅 Début</span>
+                                        <span class="font-medium">{{ req.start_date|date:"d/m/Y" }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 block">📅 Fin</span>
+                                        <span class="font-medium">{{ req.end_date|date:"d/m/Y" }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 block">⏱️ Durée</span>
+                                        <span class="font-medium">{{ req.days_requested }} jour(s)</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 block">🏷️ Type</span>
+                                        <span class="font-medium">{{ req.get_leave_type_display }}</span>
+                                    </div>
+                                </div>
+                                
+                                {% if req.reason %}
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <p class="text-gray-500 text-sm mb-1">📝 Motif :</p>
+                                    <p class="text-gray-700">{{ req.reason }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex flex-col space-y-2 ml-4">
+                                <a href="{% url 'approve_leave' req.id %}" 
+                                   class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-center">
+                                    <i class="fas fa-check-circle mr-1"></i> Approuver
+                                </a>
+                                <a href="{% url 'reject_leave' req.id %}" 
+                                   class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-center">
+                                    <i class="fas fa-times-circle mr-1"></i> Refuser
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-check-circle text-6xl text-green-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg">Aucune demande en attente</p>
+                    <p class="text-gray-400 text-sm mt-1">Toutes les demandes ont été traitées</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

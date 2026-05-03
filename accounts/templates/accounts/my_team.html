@@ -1,0 +1,42 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Mon équipe{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-6">Mon équipe</h1>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="px-4 py-2 border">ID</th>
+                    <th class="px-4 py-2 border">Nom complet</th>
+                    <th class="px-4 py-2 border">Email</th>
+                    <th class="px-4 py-2 border">Poste</th>
+                    <th class="px-4 py-2 border">Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border">{{ employee.employee_id|default:"-" }}</td>
+                    <td class="px-4 py-2 border">{{ employee.get_full_name }}</td>
+                    <td class="px-4 py-2 border">{{ employee.email }}</td>
+                    <td class="px-4 py-2 border">{{ employee.position|default:"-" }}</td>
+                    <td class="px-4 py-2 border">
+                        <span class="px-2 py-1 rounded text-sm {% if employee.status == 'ACTIVE' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ employee.get_status_display_fr }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-gray-500">Aucun employé dans votre équipe</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

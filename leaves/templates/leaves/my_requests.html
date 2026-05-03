@@ -1,0 +1,113 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Mes demandes de congé{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-white">
+                    <i class="fas fa-list mr-2"></i> Mes demandes de congé
+                </h2>
+                <p class="text-blue-100 text-sm mt-1">Historique de toutes vos demandes</p>
+            </div>
+            <a href="{% url 'request_leave' %}" 
+               class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nouvelle demande
+            </a>
+        </div>
+        
+        <div class="p-6">
+            {% if requests %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Dates
+                                </th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                    <i class="fas fa-clock mr-1"></i> Durée
+                                </th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                    <i class="fas fa-tag mr-1"></i> Type
+                                </th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                    <i class="fas fa-chart-line mr-1"></i> Statut
+                                </th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
+                                    <i class="fas fa-comment mr-1"></i> Motif
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="px-4 py-3">
+                                    <div class="font-medium">{{ req.start_date|date:"d/m/Y" }}</div>
+                                    <div class="text-xs text-gray-500">→ {{ req.end_date|date:"d/m/Y" }}</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                        {{ req.days_requested }} jour{% if req.days_requested > 1 %}s{% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    {% if req.leave_type == 'PAID' %}
+                                        <span class="text-green-600">🏖️ Congé payé</span>
+                                    {% elif req.leave_type == 'RTT' %}
+                                        <span class="text-blue-600">⚡ RTT</span>
+                                    {% elif req.leave_type == 'SICK' %}
+                                        <span class="text-red-600">🤒 Maladie</span>
+                                    {% else %}
+                                        <span class="text-gray-600">💰 Sans solde</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">
+                                    {% if req.status == 'PENDING' %}
+                                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                            <i class="fas fa-clock mr-1"></i> En attente
+                                        </span>
+                                    {% elif req.status == 'APPROVED' %}
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                            <i class="fas fa-check-circle mr-1"></i> Approuvé
+                                        </span>
+                                    {% elif req.status == 'REJECTED' %}
+                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                            <i class="fas fa-times-circle mr-1"></i> Refusé
+                                        </span>
+                                    {% else %}
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                            <i class="fas fa-ban mr-1"></i> Annulé
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
+                                    {{ req.reason|default:"-"|truncatewords:10 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg">Aucune demande de congé</p>
+                    <p class="text-gray-400 text-sm mt-1">Cliquez sur "Nouvelle demande" pour commencer</p>
+                    <a href="{% url 'request_leave' %}" class="mt-4 inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+                        <i class="fas fa-plus mr-2"></i> Faire une demande
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <a href="{% url 'leave_balance' %}" class="text-blue-600 hover:text-blue-800">
+            <i class="fas fa-chart-line mr-1"></i> Voir mon solde de congés
+        </a>
+    </div>
+</div>
+{% endblock %}

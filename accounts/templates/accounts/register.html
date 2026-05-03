@@ -1,0 +1,67 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold mb-6 text-center">Créer un compte</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+            <input type="email" name="email" class="w-full p-2 border rounded" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Prénom</label>
+            <input type="text" name="first_name" class="w-full p-2 border rounded" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Nom</label>
+            <input type="text" name="last_name" class="w-full p-2 border rounded" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Rôle</label>
+            <select name="role" class="w-full p-2 border rounded">
+                <option value="EMPLOYEE">Employé</option>
+                <option value="MANAGER">Manager</option>
+                <option value="ADMIN">Admin RH</option>
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Téléphone</label>
+            <input type="text" name="phone" class="w-full p-2 border rounded">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Département</label>
+            <input type="text" name="department" class="w-full p-2 border rounded">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Mot de passe</label>
+            <input type="password" name="password1" class="w-full p-2 border rounded" required>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Confirmer mot de passe</label>
+            <input type="password" name="password2" class="w-full p-2 border rounded" required>
+        </div>
+        
+        <button type="submit" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">
+            S'inscrire
+        </button>
+        
+        <div class="mt-4 text-center">
+            <a href="{% url 'accounts:login' %}" class="text-sm text-blue-500 hover:underline">
+                Déjà un compte ? Se connecter
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

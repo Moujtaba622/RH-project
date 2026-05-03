@@ -1,0 +1,68 @@
+<h2 style="font-family: Arial; margin-bottom: 10px;">
+    Payroll Dashboard
+</h2>
+
+<table style="width:100%; border-collapse: collapse; font-family: Arial; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+    
+    <tr style="background:#2c3e50; color:white;">
+        <th style="padding:12px;">Employee</th>
+        <th style="padding:12px;">Email</th>
+        <th style="padding:12px;">Status</th>
+        <th style="padding:12px;">Action</th>
+    </tr>
+
+    {% for item in data %}
+    <tr style="border-bottom:1px solid #eee;">
+        
+        <td style="padding:12px;">
+            {{ item.employee.get_full_name }}
+        </td>
+
+        <td style="padding:12px;">
+            {{ item.employee.email }}
+        </td>
+
+        <td style="padding:12px;">
+            {% if item.payslip %}
+                <span style="color:green; font-weight:bold;">
+                    Generated
+                </span>
+            {% else %}
+                <span style="color:red; font-weight:bold;">
+                    Not Generated
+                </span>
+            {% endif %}
+        </td>
+
+        <td style="padding:12px;">
+            {% if item.payslip %}
+
+                <a href="{% url 'accounts:generate_payslip_test' item.employee.id %}"
+                   style="background:#3498db; color:white; padding:6px 10px; text-decoration:none; border-radius:5px;">
+                    View
+                </a>
+
+                <a href="{% url 'accounts:edit_payslip' item.payslip.id %}"
+                   style="background:#f39c12; color:white; padding:6px 10px; text-decoration:none; border-radius:5px; margin-left:5px;">
+                    Edit
+                </a>
+
+                <a href="{% url 'accounts:payslip_pdf' item.payslip.id %}"
+                   style="background:#2ecc71; color:white; padding:6px 10px; text-decoration:none; border-radius:5px; margin-left:5px;">
+                    PDF
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'accounts:generate_payslip_test' item.employee.id %}"
+                   style="background:#27ae60; color:white; padding:6px 10px; text-decoration:none; border-radius:5px;">
+                    Generate
+                </a>
+
+            {% endif %}
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>

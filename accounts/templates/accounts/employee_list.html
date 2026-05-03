@@ -1,0 +1,94 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Liste des employés{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Liste des employés</h1>
+        <a href="{% url 'accounts:employee_create' %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            + Ajouter un employé
+        </a>
+    </div>
+    
+    <!-- Filtres -->
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <input type="text" name="search" placeholder="Rechercher..." value="{{ search_query }}" class="p-2 border rounded">
+            <select name="role" class="p-2 border rounded">
+                <option value="">Tous les rôles</option>
+                {% for value, label in role_choices %}
+                <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="status" class="p-2 border rounded">
+                <option value="">Tous les statuts</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="department" placeholder="Département" value="{{ department_filter }}" class="p-2 border rounded">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filtrer</button>
+        </form>
+    </div>
+    
+    <p class="text-gray-600 mb-4">Total: {{ total_count }} employé(s)</p>
+    
+    <!-- Tableau des employés -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="px-4 py-2 border">ID</th>
+                    <th class="px-4 py-2 border">Nom complet</th>
+                    <th class="px-4 py-2 border">Email</th>
+                    <th class="px-4 py-2 border">Rôle</th>
+                    <th class="px-4 py-2 border">Département</th>
+                    <th class="px-4 py-2 border">Statut</th>
+                    <th class="px-4 py-2 border">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border text-center">{{ employee.employee_id|default:"-" }}</td>
+                    <td class="px-4 py-2 border">{{ employee.get_full_name }}</td>
+                    <td class="px-4 py-2 border">{{ employee.email }}</td>
+                    <td class="px-4 py-2 border">{{ employee.get_role_display }}</td>
+                    <td class="px-4 py-2 border">{{ employee.department|default:"-" }}</td>
+                    <td class="px-4 py-2 border">
+                        <span class="px-2 py-1 rounded text-sm {% if employee.status == 'ACTIVE' %}bg-green-100 text-green-800{% elif employee.status == 'INACTIVE' %}bg-gray-100 text-gray-800{% elif employee.status == 'ON_LEAVE' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ employee.get_status_display_fr }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-2 border">
+                        <a href="{% url 'accounts:employee_detail' employee.id %}" class="text-blue-500 hover:underline mr-2">Voir</a>
+                        <a href="{% url 'accounts:employee_edit' employee.id %}" class="text-green-500 hover:underline mr-2">Modifier</a>
+                        <a href="{% url 'accounts:employee_deactivate' employee.id %}" class="text-red-500 hover:underline">Désactiver</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-gray-500">Aucun employé trouvé</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if employees.has_other_pages %}
+    <div class="mt-4 flex justify-center">
+        <div class="flex space-x-2">
+            {% if employees.has_previous %}
+            <a href="?page={{ employees.previous_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-100">Précédent</a>
+            {% endif %}
+            <span class="px-3 py-1">Page {{ employees.number }} sur {{ employees.paginator.num_pages }}</span>
+            {% if employees.has_next %}
+            <a href="?page={{ employees.next_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-100">Suivant</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Détails - {{ employee.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Fiche employé</h1>
+        <div class="flex gap-2">
+            <a href="{% url 'accounts:contract_create' employee.id %}" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                <i class="fas fa-file-signature mr-2"></i>Ajouter un contrat
+            </a>
+            <a href="{% url 'accounts:employee_edit' employee.id %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                <i class="fas fa-edit mr-2"></i>Modifier
+            </a>
+            <a href="{% url 'accounts:employee_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                <i class="fas fa-arrow-left mr-2"></i>Retour
+            </a>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Informations personnelles -->
+        <div class="border rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">
+                <i class="fas fa-user mr-2"></i>Informations personnelles
+            </h2>
+            <p><strong>ID Employé:</strong> {{ employee.employee_id|default:"-" }}</p>
+            <p><strong>Nom complet:</strong> {{ employee.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ employee.email }}</p>
+            <p><strong>Téléphone:</strong> {{ employee.phone|default:"-" }}</p>
+            <p><strong>Date de naissance:</strong> {{ employee.birth_date|default:"-" }}</p>
+            <p><strong>Adresse:</strong> {{ employee.address|default:"-" }}</p>
+        </div>
+        
+        <!-- Informations professionnelles -->
+        <div class="border rounded-lg p-4">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">
+                <i class="fas fa-briefcase mr-2"></i>Informations professionnelles
+            </h2>
+            <p><strong>Rôle:</strong> {{ employee.get_role_display }}</p>
+            <p><strong>Département:</strong> {{ employee.department|default:"-" }}</p>
+            <p><strong>Poste:</strong> {{ employee.position|default:"-" }}</p>
+            <p><strong>Manager:</strong> {{ employee.manager.get_full_name|default:"-" }}</p>
+            <p><strong>Type de contrat:</strong> {{ employee.contract_type|default:"-" }}</p>
+            <p><strong>Date d'embauche:</strong> {{ employee.hire_date|default:"-" }}</p>
+            <p><strong>Salaire:</strong> {% if employee.salary %}{{ employee.salary }} €{% else %}-{% endif %}</p>
+            <p><strong>Statut:</strong> 
+                <span class="px-2 py-1 rounded text-sm {% if employee.status == 'ACTIVE' %}bg-green-100 text-green-800{% elif employee.status == 'INACTIVE' %}bg-gray-100 text-gray-800{% elif employee.status == 'ON_LEAVE' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ employee.get_status_display_fr }}
+                </span>
+            </p>
+        </div>
+        
+        <!-- Contact d'urgence -->
+        <div class="border rounded-lg p-4 md:col-span-2">
+            <h2 class="text-xl font-semibold mb-4 text-red-600">
+                <i class="fas fa-phone-alt mr-2"></i>Contact d'urgence
+            </h2>
+            <p><strong>Nom:</strong> {{ employee.emergency_contact|default:"-" }}</p>
+            <p><strong>Téléphone:</strong> {{ employee.emergency_phone|default:"-" }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

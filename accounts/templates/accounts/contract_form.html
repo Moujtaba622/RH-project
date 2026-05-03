@@ -1,0 +1,52 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}{% if contract %}Modifier{% else %}Ajouter{% endif %} un contrat{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-2xl font-bold mb-6">
+        {% if contract %}Modifier le contrat{% else %}Ajouter un contrat{% endif %}
+    </h1>
+    
+    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+        <p class="font-semibold">Employé : {{ employee.get_full_name }}</p>
+        <p>Email : {{ employee.email }}</p>
+        <p>Poste actuel : {{ employee.position|default:"Non défini" }}</p>
+    </div>
+    
+    {% if existing_contract %}
+    <div class="bg-yellow-50 p-4 rounded-lg mb-6 border-l-4 border-yellow-500">
+        <p class="font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i>Attention :</p>
+        <p>Cet employé a déjà un contrat actif. Ajouter un nouveau contrat désactivera l'ancien.</p>
+    </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for field in form %}
+            <div class="mb-4 {% if field.name == 'job_description' %}md:col-span-2{% endif %}">
+                <label class="block text-gray-700 font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+                {% if field.help_text %}
+                <p class="text-gray-500 text-sm mt-1">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="flex justify-end space-x-2 mt-6">
+            <a href="{% url 'accounts:employee_detail' employee.id %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                Annuler
+            </a>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-save mr-2"></i>Enregistrer le contrat
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

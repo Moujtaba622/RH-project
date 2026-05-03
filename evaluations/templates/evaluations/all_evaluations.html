@@ -1,0 +1,94 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">Toutes les évaluations</h1>
+
+    <!-- Filters -->
+    <form method="get" class="bg-white rounded-xl shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+        <div>
+            <label class="block text-sm font-medium mb-1">Campagne</label>
+            <select name="campaign" class="border rounded-lg px-3 py-2">
+                <option value="">Toutes</option>
+                {% for c in campaigns %}
+                <option value="{{ c.id }}" {% if campaign_filter == c.id|stringformat:"s" %}selected{% endif %}>
+                    {{ c.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Employé</label>
+            <input type="text" name="employee" value="{{ employee_filter }}"
+                   placeholder="Nom..."
+                   class="border rounded-lg px-3 py-2">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Type</label>
+            <select name="type" class="border rounded-lg px-3 py-2">
+                <option value="">Tous</option>
+                <option value="self" {% if type_filter == 'self' %}selected{% endif %}>Auto-évaluation</option>
+                <option value="manager" {% if type_filter == 'manager' %}selected{% endif %}>Par manager</option>
+            </select>
+        </div>
+        <button type="submit"
+                class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition">
+            Filtrer
+        </button>
+        <a href="{% url 'evaluations:all_evaluations' %}"
+           class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-300 transition">
+            Réinitialiser
+        </a>
+    </form>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-indigo-50 text-indigo-700">
+                <tr>
+                    <th class="px-4 py-3 text-left">Employé</th>
+                    <th class="px-4 py-3 text-left">Campagne</th>
+                    <th class="px-4 py-3 text-left">Type</th>
+                    <th class="px-4 py-3 text-left">Évaluateur</th>
+                    <th class="px-4 py-3 text-left">Statut</th>
+                    <th class="px-4 py-3 text-left">Date</th>
+                    <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for ev in evaluations %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">{{ ev.employee.get_full_name }}</td>
+                    <td class="px-4 py-3">{{ ev.campaign.title }}</td>
+                    <td class="px-4 py-3">
+                        {% if ev.is_self_evaluation %}
+                            <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">Auto</span>
+                        {% else %}
+                            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">Manager</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if ev.is_self_evaluation %}—{% else %}{{ ev.manager.get_full_name }}{% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                            {{ ev.status }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-500">{{ ev.created_at|date:"d/m/Y" }}</td>
+                    <td class="px-4 py-3">
+                        <a href="{% url 'evaluations:evaluation_detail' ev.pk %}"
+                           class="text-indigo-600 hover:underline">Voir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-400">
+                        Aucune évaluation trouvée.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

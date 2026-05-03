@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/static/
+/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Migrations (optionnel)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Secrets
+.env
+.secret
+config.py
+settings_local.py
+
+# Tests
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/__pycache__/
+venv/
+db.sqlite3
+*.pyc
+.vscode/

@@ -1,0 +1,112 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Fiche de paie{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+
+  <div class="flex items-center justify-between mb-6">
+    {% if request.user.role == 'ADMIN' %}
+      <a href="{% url 'accounts:payroll_dashboard' %}" class="text-sm text-gray-500 hover:text-gray-900">
+        <i class="fas fa-arrow-left mr-1"></i> Tableau de bord paie
+      </a>
+    {% else %}
+      <a href="{% url 'accounts:my_payslips' %}" class="text-sm text-gray-500 hover:text-gray-900">
+        <i class="fas fa-arrow-left mr-1"></i> Mes fiches de paie
+      </a>
+    {% endif %}
+    <div class="flex gap-2">
+      {% if request.user.role == 'ADMIN' and not payslip.is_finalized %}
+        <a href="{% url 'accounts:edit_payslip' payslip.id %}"
+           class="px-4 py-2 rounded-xl text-sm font-medium bg-yellow-50 text-yellow-700 hover:bg-yellow-100 transition">
+          <i class="fas fa-pen mr-1"></i> Modifier
+        </a>
+      {% endif %}
+      {% if payslip.is_finalized %}
+        <a href="{% url 'accounts:payslip_pdf' payslip.id %}"
+           class="px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition">
+          <i class="fas fa-download mr-1"></i> Télécharger PDF
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <div class="bg-blue-600 px-8 py-6 text-white">
+      <div class="text-blue-200 text-xs font-semibold uppercase tracking-widest mb-1">Bulletin de salaire</div>
+      <div class="text-2xl font-bold">
+        {% if payslip.month == 1 %}Janvier
+        {% elif payslip.month == 2 %}Février
+        {% elif payslip.month == 3 %}Mars
+        {% elif payslip.month == 4 %}Avril
+        {% elif payslip.month == 5 %}Mai
+        {% elif payslip.month == 6 %}Juin
+        {% elif payslip.month == 7 %}Juillet
+        {% elif payslip.month == 8 %}Août
+        {% elif payslip.month == 9 %}Septembre
+        {% elif payslip.month == 10 %}Octobre
+        {% elif payslip.month == 11 %}Novembre
+        {% elif payslip.month == 12 %}Décembre
+        {% endif %}
+        {{ payslip.year }}
+      </div>
+      <div class="flex items-center justify-between mt-2">
+        <div class="text-blue-200 text-xs">Réf. #{{ payslip.id }}</div>
+        {% if payslip.is_finalized %}
+          <span class="text-xs px-2 py-1 rounded-full bg-green-500 bg-opacity-30 text-green-100">Finalisée</span>
+        {% else %}
+          <span class="text-xs px-2 py-1 rounded-full bg-yellow-500 bg-opacity-30 text-yellow-100">Provisoire</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="px-8 py-4 bg-gray-50 border-b border-gray-100 grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <div class="text-xs text-gray-400 uppercase font-semibold mb-1">Employé</div>
+        <div class="font-semibold text-gray-900">{{ payslip.employee.get_full_name }}</div>
+        <div class="text-gray-500 text-xs">{{ payslip.employee.employee_id }}</div>
+      </div>
+      <div>
+        <div class="text-xs text-gray-400 uppercase font-semibold mb-1">Poste</div>
+        <div class="font-semibold text-gray-900">{{ payslip.employee.position|default:"—" }}</div>
+        <div class="text-gray-500 text-xs">{{ payslip.employee.department|default:"" }}</div>
+      </div>
+    </div>
+
+    <div class="px-8 py-6 space-y-3">
+      <div class="flex justify-between py-3 border-b border-gray-50 text-sm">
+        <span class="text-gray-600">Salaire de base</span>
+        <span class="font-semibold text-gray-900">{{ payslip.base_salary }} TND</span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-50 text-sm">
+        <span class="text-gray-600">Prime</span>
+        {% if payslip.bonus > 0 %}
+          <span class="font-semibold text-green-600">+ {{ payslip.bonus }} TND</span>
+        {% else %}
+          <span class="text-gray-400">0 TND</span>
+        {% endif %}
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-50 text-sm">
+        <span class="text-gray-600">Déductions (absences)</span>
+        {% if payslip.deduction > 0 %}
+          <span class="font-semibold text-red-500">- {{ payslip.deduction }} TND</span>
+        {% else %}
+          <span class="text-gray-400">0 TND</span>
+        {% endif %}
+      </div>
+
+      <div class="bg-blue-50 rounded-xl px-6 py-5 flex items-center justify-between mt-4">
+        <div>
+          <div class="text-xs font-semibold text-blue-400 uppercase tracking-wide">Salaire net à payer</div>
+          <div class="text-xs text-blue-300 mt-0.5">Base + Prime − Déductions</div>
+        </div>
+        <div class="text-3xl font-bold text-blue-700">{{ payslip.net_salary }} <span class="text-lg font-normal text-blue-400">TND</span></div>
+      </div>
+    </div>
+
+    <div class="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center text-xs text-gray-400">
+      {% if payslip.is_finalized %}Document définitif.{% else %}Document provisoire — peut être modifié avant finalisation.{% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

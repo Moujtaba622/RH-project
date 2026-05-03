@@ -1,0 +1,44 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Campagnes d'Évaluation{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Campagnes d'Évaluation</h1>
+        <a href="{% url 'evaluations:campaign_create' %}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+            + Nouvelle Campagne
+        </a>
+    </div>
+
+    <table class="min-w-full">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="p-3 text-left">Titre</th>
+                <th class="p-3 text-left">Début</th>
+                <th class="p-3 text-left">Fin</th>
+                <th class="p-3 text-left">Statut</th>
+                <th class="p-3">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in campaigns %}
+            <tr class="border-b">
+                <td class="p-3">{{ campaign.title }}</td>
+                <td class="p-3">{{ campaign.start_date }}</td>
+                <td class="p-3">{{ campaign.end_date }}</td>
+                <td class="p-3">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">Active</span>
+                </td>
+                <td class="p-3">
+                    <a href="{% url 'evaluations:campaign_detail' campaign.pk %}">Voir Détails</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-8 text-gray-500">Aucune campagne trouvée</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

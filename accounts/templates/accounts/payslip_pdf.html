@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #1f2937; }
+  @page { size: A4; margin: 2cm 2.5cm; }
+  .header { background-color: #1d4ed8; color: white; padding: 20px; margin-bottom: 20px; }
+  .header-label { font-size: 8pt; letter-spacing: 2px; color: #bfdbfe; margin-bottom: 4px; }
+  .header-period { font-size: 20pt; font-weight: bold; }
+  .header-ref { font-size: 8pt; color: #bfdbfe; margin-top: 4px; }
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #f9fafb; }
+  .info-table td { padding: 8px 12px; font-size: 9pt; border: 1px solid #e5e7eb; }
+  .label { font-size: 7pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; display: block; margin-bottom: 2px; }
+  .val { font-weight: bold; color: #111827; }
+  .sub { color: #6b7280; font-size: 8.5pt; }
+  .section-title { font-size: 7.5pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #9ca3af; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+  .salary-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  .salary-table td { padding: 8px 4px; font-size: 9.5pt; border-bottom: 1px solid #f3f4f6; }
+  .amount { text-align: right; font-weight: bold; }
+  .green { color: #15803d; }
+  .red { color: #dc2626; }
+  .muted { color: #9ca3af; font-weight: normal; }
+  .net-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 14px 16px; margin-top: 10px; }
+  .net-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #3b82f6; }
+  .net-amount { font-size: 20pt; font-weight: bold; color: #1d4ed8; text-align: right; }
+  .footer { margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 10px; text-align: center; font-size: 7.5pt; color: #9ca3af; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">Bulletin de salaire</div>
+  <div class="header-period">
+    {% if payslip.month == 1 %}Janvier
+    {% elif payslip.month == 2 %}Février
+    {% elif payslip.month == 3 %}Mars
+    {% elif payslip.month == 4 %}Avril
+    {% elif payslip.month == 5 %}Mai
+    {% elif payslip.month == 6 %}Juin
+    {% elif payslip.month == 7 %}Juillet
+    {% elif payslip.month == 8 %}Août
+    {% elif payslip.month == 9 %}Septembre
+    {% elif payslip.month == 10 %}Octobre
+    {% elif payslip.month == 11 %}Novembre
+    {% elif payslip.month == 12 %}Décembre
+    {% endif %}
+    {{ payslip.year }}
+  </div>
+  <div class="header-ref">Réf. #{{ payslip.id }} — {% if payslip.is_finalized %}Finalisée{% else %}Provisoire{% endif %}</div>
+</div>
+
+<table class="info-table">
+  <tr>
+    <td style="width:50%">
+      <span class="label">Employé</span>
+      <span class="val">{{ payslip.employee.get_full_name }}</span><br>
+      <span class="sub">{{ payslip.employee.employee_id }}</span><br>
+      <span class="sub">{{ payslip.employee.email }}</span>
+    </td>
+    <td style="width:50%">
+      <span class="label">Poste / Département</span>
+      <span class="val">{{ payslip.employee.position|default:"—" }}</span><br>
+      <span class="sub">{{ payslip.employee.department|default:"—" }}</span>
+    </td>
+  </tr>
+</table>
+
+<div class="section-title">Détail du salaire</div>
+
+<table class="salary-table">
+  <tr>
+    <td>Salaire de base</td>
+    <td class="amount">{{ payslip.base_salary }} TND</td>
+  </tr>
+  <tr>
+    <td>Prime</td>
+    <td class="amount {% if payslip.bonus > 0 %}green{% else %}muted{% endif %}">
+      {% if payslip.bonus > 0 %}+ {% endif %}{{ payslip.bonus }} TND
+    </td>
+  </tr>
+  <tr>
+    <td>Déductions (absences)</td>
+    <td class="amount {% if payslip.deduction > 0 %}red{% else %}muted{% endif %}">
+      {% if payslip.deduction > 0 %}- {% endif %}{{ payslip.deduction }} TND
+    </td>
+  </tr>
+</table>
+
+<div class="net-box">
+  <div class="net-label">Salaire net à payer</div>
+  <div class="net-amount">{{ payslip.net_salary }} TND</div>
+</div>
+
+<div class="footer">
+  Document généré par le système RH.
+  {% if payslip.is_finalized %}Ce bulletin est définitif.{% else %}Ce bulletin est provisoire.{% endif %}
+</div>
+
+</body>
+</html>

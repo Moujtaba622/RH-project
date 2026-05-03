@@ -1,0 +1,111 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white">
+        <h1 class="text-2xl font-bold mb-1">
+            <i class="fas fa-clipboard-list mr-2"></i>Détail de l'évaluation
+        </h1>
+        <p class="text-purple-200">Campagne : {{ evaluation.campaign.title }}</p>
+    </div>
+
+    <!-- Meta info -->
+    <div class="bg-white rounded-xl shadow p-6 grid grid-cols-2 gap-4 text-sm">
+        <div>
+            <p class="text-gray-500">Employé</p>
+            <p class="font-semibold text-gray-800">{{ evaluation.employee.get_full_name }}</p>
+        </div>
+        <div>
+            <p class="text-gray-500">Type</p>
+            <p class="font-semibold">
+                {% if evaluation.is_self_evaluation %}
+                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Auto-évaluation</span>
+                {% else %}
+                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Par manager</span>
+                {% endif %}
+            </p>
+        </div>
+        {% if not evaluation.is_self_evaluation and evaluation.manager %}
+        <div>
+            <p class="text-gray-500">Évaluateur</p>
+            <p class="font-semibold text-gray-800">{{ evaluation.manager.get_full_name }}</p>
+        </div>
+        {% endif %}
+        <div>
+            <p class="text-gray-500">Date</p>
+            <p class="font-semibold text-gray-800">{{ evaluation.created_at|date:"d/m/Y à H:i" }}</p>
+        </div>
+        <div>
+            <p class="text-gray-500">Statut</p>
+            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                {{ evaluation.status }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Criteria scores -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">
+            <i class="fas fa-star text-yellow-500 mr-2"></i>Critères & Notes
+        </h2>
+
+        {% if evaluation.criteria.all %}
+        <div class="space-y-4">
+            {% for criterion in evaluation.criteria.all %}
+            <div class="flex items-center justify-between border-b pb-3">
+                <span class="font-medium text-gray-700">{{ criterion.name }}</span>
+                <div class="flex items-center gap-2">
+                    <!-- Star display -->
+                    <div class="flex gap-1">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= criterion.score %}
+                                <i class="fas fa-star text-yellow-400"></i>
+                            {% else %}
+                                <i class="far fa-star text-gray-300"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-sm font-bold">
+                        {{ criterion.score }}/5
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Average score -->
+        <div class="mt-4 pt-4 border-t flex justify-between items-center">
+            <span class="font-semibold text-gray-700">Note moyenne</span>
+            <span class="bg-indigo-600 text-white px-4 py-1 rounded-full font-bold text-lg">
+                {% with total=0 count=0 %}
+                    {{ evaluation.criteria.all|length }} critères
+                {% endwith %}
+            </span>
+        </div>
+        {% else %}
+        <p class="text-gray-400 text-center py-4">
+            <i class="fas fa-info-circle mr-2"></i>Aucun critère enregistré.
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Comments -->
+    {% if evaluation.comments %}
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-semibold mb-3">
+            <i class="fas fa-comment-dots text-indigo-500 mr-2"></i>Commentaires
+        </h2>
+        <p class="text-gray-700 leading-relaxed bg-gray-50 rounded-lg p-4">
+            {{ evaluation.comments }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Back button -->
+    <a href="{% url 'evaluations:campaign_detail' evaluation.campaign.pk %}"
+       class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+        ← Retour à la campagne
+    </a>
+</div>
+{% endblock %}

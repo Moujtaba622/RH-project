@@ -1,0 +1,45 @@
+{% extends 'accounts/base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-2">Auto-évaluation</h1>
+    <p class="text-gray-500 mb-6">Campagne : <strong>{{ campaign.title }}</strong></p>
+
+    <form method="post" class="bg-white rounded-xl shadow p-6 space-y-6">
+        {% csrf_token %}
+
+        {% for name in criteria_names %}
+        <div>
+            <label class="block font-semibold mb-2">{{ name }}</label>
+            <div class="flex gap-3">
+                {% for i in "12345" %}
+                <label class="flex flex-col items-center gap-1 cursor-pointer">
+                    <input type="radio" name="score_{{ name }}" value="{{ i }}" required
+                           class="accent-purple-600">
+                    <span class="text-sm">{{ i }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <p class="text-xs text-gray-400 mt-1">1 = Insuffisant &nbsp;|&nbsp; 5 = Excellent</p>
+        </div>
+        {% endfor %}
+
+        <div>
+            <label class="block font-semibold mb-2">Commentaires</label>
+            <textarea name="comments" rows="4"
+                      class="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      placeholder="Décrivez vos accomplissements, difficultés..."></textarea>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit"
+                    class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                Soumettre mon auto-évaluation
+            </button>
+            <a href="{% url 'evaluations:my_evaluations' %}"
+               class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

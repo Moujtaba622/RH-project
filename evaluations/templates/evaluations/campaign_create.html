@@ -1,0 +1,31 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Nouvelle Campagne{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-8 rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-6">Créer une nouvelle campagne</h1>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="space-y-4">
+            <div>
+                <label>Titre de la campagne</label>
+                <input type="text" name="title" class="w-full border p-3 rounded" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label>Date de début</label>
+                    <input type="date" name="start_date" class="w-full border p-3 rounded" required>
+                </div>
+                <div>
+                    <label>Date de fin</label>
+                    <input type="date" name="end_date" class="w-full border p-3 rounded" required>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold">
+                Créer la Campagne
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
