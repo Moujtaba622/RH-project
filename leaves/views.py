@@ -41,37 +41,46 @@ def leave_balance(request):
 
 @login_required
 def pending_requests(request):
-    # Seuls les managers et admins peuvent voir
-    if not request.user.is_staff:
-        messages.error(request, 'Vous n\'avez pas les droits pour accéder à cette page.')
+    if request.user.role not in ['MANAGER', 'ADMIN']:
+        messages.error(request, "Vous n'avez pas les droits pour accéder à cette page.")
         return redirect('accounts:dashboard')
     
-    pending = LeaveRequest.objects.filter(status='PENDING').order_by('-created_at')
+    if request.user.role == 'MANAGER':
+        # Manager only sees leaves from their team
+        pending = LeaveRequest.objects.filter(
+            status='PENDING',
+            employee__manager=request.user
+        ).order_by('-created_at')
+    else:
+        # Admin sees all
+        pending = LeaveRequest.objects.filter(status='PENDING').order_by('-created_at')
+    
     return render(request, 'leaves/pending_requests.html', {'pending': pending})
+
 
 @login_required
 def approve_leave(request, pk):
     leave_request = get_object_or_404(LeaveRequest, pk=pk)
-    if request.user.is_staff:
-        leave_request.status = 'APPROVED'
-        leave_request.approved_by = request.user
-        leave_request.save()
-        
-        # Mettre à jour le solde
-        balance = LeaveBalance.objects.get(employee=leave_request.employee, year=timezone.now().year)
-        balance.taken_days += leave_request.days_requested
-        balance.save()
-        
-        messages.success(request, f'Demande de {leave_request.employee.username} approuvée.')
+    if request.user.role not in ['MANAGER', 'ADMIN']:
+        messages.error(request, "Vous n'avez pas les droits.")
+        return redirect('accounts:dashboard')
+    
+    leave_request.status = 'APPROVED'
+    leave_request.save()
+    messages.success(request, f'Demande approuvée.')
     return redirect('pending_requests')
+
 
 @login_required
 def reject_leave(request, pk):
     leave_request = get_object_or_404(LeaveRequest, pk=pk)
-    if request.user.is_staff:
-        leave_request.status = 'REJECTED'
-        leave_request.save()
-        messages.success(request, f'Demande de {leave_request.employee.username} refusée.')
+    if request.user.role not in ['MANAGER', 'ADMIN']:
+        messages.error(request, "Vous n'avez pas les droits.")
+        return redirect('accounts:dashboard')
+    
+    leave_request.status = 'REJECTED'
+    leave_request.save()
+    messages.success(request, f'Demande refusée.')
     return redirect('pending_requests')
 
 

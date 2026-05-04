@@ -1,0 +1,89 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Rapports{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Rapports</h1>
+      <p class="text-sm text-gray-500 mt-1">Statistiques et export des données RH</p>
+    </div>
+    <a href="{% url 'accounts:dashboard' %}" class="text-sm text-gray-500 hover:text-gray-900">
+      <i class="fas fa-arrow-left mr-1"></i> Tableau de bord
+    </a>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+      <div class="text-3xl font-bold text-blue-600">{{ employees.count }}</div>
+      <div class="text-sm text-gray-500 mt-1">Total employés</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+      <div class="text-3xl font-bold text-green-600">{{ employees.filter.count }}</div>
+      <div class="text-sm text-gray-500 mt-1">Actifs</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+      <div class="text-3xl font-bold text-yellow-600">{{ managers_count }}</div>
+      <div class="text-sm text-gray-500 mt-1">Managers</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+      <div class="text-3xl font-bold text-red-500">{{ inactive_count }}</div>
+      <div class="text-sm text-gray-500 mt-1">Inactifs</div>
+    </div>
+  </div>
+
+  <!-- Export button -->
+  <div class="flex justify-end mb-4">
+    <a href="{% url 'accounts:export_employees_excel' %}"
+       class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition">
+      <i class="fas fa-file-excel"></i> Exporter Excel
+    </a>
+  </div>
+
+  <!-- Employee table -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          <th class="text-left px-6 py-4">ID</th>
+          <th class="text-left px-6 py-4">Nom</th>
+          <th class="text-left px-6 py-4">Email</th>
+          <th class="text-left px-6 py-4">Département</th>
+          <th class="text-left px-6 py-4">Rôle</th>
+          <th class="text-left px-6 py-4">Statut</th>
+          <th class="text-left px-6 py-4">Date d'embauche</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50">
+        {% for emp in employees %}
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-3 text-gray-400 text-xs">{{ emp.employee_id|default:"—" }}</td>
+          <td class="px-6 py-3 font-medium text-gray-900">{{ emp.get_full_name }}</td>
+          <td class="px-6 py-3 text-gray-600">{{ emp.email }}</td>
+          <td class="px-6 py-3 text-gray-600">{{ emp.department|default:"—" }}</td>
+          <td class="px-6 py-3">
+            {% if emp.role == 'ADMIN' %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Admin</span>
+            {% elif emp.role == 'MANAGER' %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">Manager</span>
+            {% else %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Employé</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3">
+            {% if emp.status == 'ACTIVE' %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Actif</span>
+            {% else %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">{{ emp.status }}</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3 text-gray-600">{{ emp.hire_date|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

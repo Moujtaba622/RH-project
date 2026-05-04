@@ -165,7 +165,7 @@
 
     <!-- Actions rapides -->
     <!-- Actions rapides -->
-<div class="grid grid-cols-1 md:grid-cols-5 gap-4">  <!-- Changed to 4 columns -->
+<div class="grid grid-cols-1 md:grid-cols-6 gap-4">  <!-- Changed to 4 columns -->
 
     <!-- Existing buttons -->
     <a href="{% url 'accounts:employee_list' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg text-center hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
@@ -187,7 +187,7 @@
         <div class="text-sm text-orange-100">Gestion de la paie</div>
     </a>
 
-    <a href="#" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg text-center hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105">
+    <a href="{% url 'accounts:reports' %}" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg text-center hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105">
         <i class="fas fa-chart-line text-2xl mb-2 block"></i>
         <div class="font-semibold">Rapports</div>
         <div class="text-sm text-purple-100">Statistiques avancées</div>
@@ -198,6 +198,13 @@
         <div class="font-semibold">Évaluations</div>
         <div class="text-sm text-indigo-100">Toutes les évaluations</div>
     </a>
+
+    <a href="{% url 'pending_requests' %}" class="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-4 rounded-lg text-center hover:from-teal-600 hover:to-teal-700 transition-all transform hover:scale-105">
+        <i class="fas fa-calendar-check text-2xl mb-2 block"></i>
+        <div class="font-semibold">Valider les congés</div>
+        <div class="text-sm text-teal-100">Demandes en attente</div>
+    </a>
+
 </div>
 
     <!-- ==================== MANAGER DASHBOARD ==================== -->
@@ -400,7 +407,7 @@
         <a href="{% url 'accounts:my_payslips' %}" class="bg-orange-500 text-white p-4 rounded-lg text-center hover:bg-orange-600 transition-all">
             <i class="fas fa-file-invoice-dollar mr-2"></i>Mes fiches de paie
         </a>
-        
+
     </div>
     {% endif %}
 

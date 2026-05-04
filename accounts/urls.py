@@ -58,5 +58,7 @@ urlpatterns = [
     path('payslip/<int:payslip_id>/pdf/', views.payslip_pdf, name='payslip_pdf'),
     path('my-payslips/', views.my_payslips, name='my_payslips'),
     path('payslip/<int:payslip_id>/', views.payslip_detail, name='payslip_detail'),
+    path('reports/', views.reports, name='reports'),
+    path('reports/export-excel/', views.export_employees_excel, name='export_employees_excel'),
     
 ]

@@ -33,16 +33,37 @@ def is_manager_or_admin(user):
 
 def register_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Compte créé avec succès !')
-            return redirect('accounts:dashboard')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'accounts/register.html', {'form': form})
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        role = request.POST.get('role', 'EMPLOYEE')
+        phone = request.POST.get('phone', '')
+        department = request.POST.get('department', '')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
 
+        if password1 != password2:
+            messages.error(request, 'Les mots de passe ne correspondent pas.')
+            return render(request, 'accounts/register.html')
+
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, 'Un compte avec cet email existe déjà.')
+            return render(request, 'accounts/register.html')
+
+        user = CustomUser.objects.create_user(
+            email=email,
+            password=password1,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            phone=phone,
+            department=department,
+        )
+        login(request, user)
+        messages.success(request, 'Compte créé avec succès !')
+        return redirect('accounts:dashboard')
+
+    return render(request, 'accounts/register.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -405,3 +426,46 @@ def payslip_detail(request, payslip_id):
     if not (request.user.role == 'ADMIN' or payslip.employee == request.user):
         return HttpResponseForbidden()
     return render(request, 'accounts/payslip_detail.html', {'payslip': payslip})
+
+@login_required
+@user_passes_test(is_admin)
+def reports(request):
+    employees = CustomUser.objects.all()
+    context = {
+        'employees': employees,
+        'managers_count': employees.filter(role='MANAGER').count(),
+        'inactive_count': employees.filter(status='INACTIVE').count(),
+        'active_count': employees.filter(status='ACTIVE').count(),
+    }
+    return render(request, 'accounts/reports.html', context)
+
+import openpyxl
+from django.http import HttpResponse
+
+@login_required
+@user_passes_test(is_admin)
+def export_employees_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Employés"
+
+    headers = ['ID', 'Nom', 'Prénom', 'Email', 'Rôle', 'Département', 'Poste', 'Statut', "Date d'embauche"]
+    ws.append(headers)
+
+    for emp in CustomUser.objects.all():
+        ws.append([
+            emp.employee_id or '',
+            emp.last_name,
+            emp.first_name,
+            emp.email,
+            emp.role,
+            emp.department or '',
+            emp.position or '',
+            emp.status,
+            str(emp.hire_date) if emp.hire_date else '',
+        ])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="employes.xlsx"'
+    wb.save(response)
+    return response
